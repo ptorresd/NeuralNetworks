@@ -2,11 +2,10 @@ package neuralNetworks;
 
 public class NeuralNetwork {
 	NeuronLayer[] layers;
-	double[] input;
 	
-	public NeuralNetwork(int[] layersSize,int inputSize) {
-		layers=new NeuronLayer[layersSize.length];
-		layers[0]=new NeuronLayer(layersSize[0],inputSize);
+	public NeuralNetwork(int[] layersSize,int inputSize) {  		//el constructor recibe un arreglo indicando la cantidad de neuronas 
+		layers=new NeuronLayer[layersSize.length];					//en cada hidden layer y output layer
+		layers[0]=new NeuronLayer(layersSize[0],inputSize);			//y un entero indicando la cantidad de inputs
 		for(int i=1;i<layersSize.length;i++) {
 			layers[i]=new NeuronLayer(layersSize[i],layersSize[i-1]);
 		}
@@ -59,27 +58,48 @@ public class NeuralNetwork {
 		return last().getOutput();
 	}
 	
-	public static void main(String[] args) {
-		double[] input1= {1,1,0,0};
-		double[] input2= {1,0,1,0};
-		double[] output1= {1,0,0,1};
-		double[] output2= {0,1,1,0};
-		
-		NeuralNetwork red=new NeuralNetwork(new int[]{4,5,2},2);
-		
-		int epochs=10000;
-		for(int i=0;i<epochs;i++) {
-			for(int j=0;j<4;j++) {
-				red.train(new double[]{input1[j], input2[j]},new double[]{output1[j], output2[j]});
-			}
+	public static double error(double[] output,double[] expOutput){
+		double err=0;
+		for(int i=0;i<output.length;i++){
+			err+=Math.pow(output[i]-expOutput[i],2);
 		}
-		for(int i=0;i<4;i++) {
-			red.feed(new double[]{input1[i], input2[i]});
-			double[] output=red.getOutput();
-			for(double d:output) {
-				System.out.print(d+" ");
+		return err;
+	}
+	
+	
+	public static void main(String[] args) {
+		
+		NeuralNetwork red=new NeuralNetwork(new int[]{25,50,50,1},113); //esto nos entrega una red con la configuracion
+																		// 113,25,50,50,1
+		Parser p=new Parser("dota2Train.csv");
+		double[][] trainInput=p.getInput();
+		double[][] trainOutput=p.getOutput();
+		
+		Parser t=new Parser("dota2Test.csv");
+		double[][] testInput=t.getInput();
+		double[][] testOutput=t.getOutput();
+		
+		int epochs=1000;
+		System.out.println(trainInput.length);
+		for(int i=0;i<epochs;i++) {
+			if(i%10==0){
+				System.out.println("epoch:"+i);
+				int correctas=0;
+				int mCorrectas=0;
+				for(int j=0;j<testInput.length;j++) {
+					red.feed(testInput[j]);
+					double[] output=red.getOutput();
+					double err=error(output,testOutput[j]);
+					if(err<0.1)correctas++;
+					if(err<1)mCorrectas++;
+				}
+				System.out.println("correctas:"+correctas);
+				System.out.println("mas o menos correctas:"+mCorrectas);
+				
 			}
-			System.out.println("");
+			for(int j=0;j<90000;j++) {
+				red.train(trainInput[j], trainOutput[j]);
+			}
 		}
 	}
 }

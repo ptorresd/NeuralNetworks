@@ -8,7 +8,7 @@ public class Neuron {
 
 
 	protected double delta;
-	protected static double c=5;
+	protected static double c=0.0005;
 
 	public double getOutput() {
 		return output;
@@ -38,9 +38,9 @@ public class Neuron {
 	public Neuron(int size) {
 		weights=new double[size];
 		for(int i=0;i<size;i++) {
-			weights[i]=Math.random();
+			weights[i]=Math.random()-0.5;
 		}
-		bias=1;
+		bias=0;
 	}
 	
 	public Neuron(double[] weights,double bias){
@@ -53,7 +53,8 @@ public class Neuron {
 		for(int i=0;i<weights.length;i++) {
 			res+=weights[i]*input[i];
 		}
-		output= 1/(1+Math.exp(-res-bias));
+		output= 2/(1+Math.exp(-2*(res+bias)))-1;	//tanSigmoid
+		//output= 1/(1+Math.exp(-1*(res+bias)));   //sigmoid
 	}
 	
 	

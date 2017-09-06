@@ -37,7 +37,8 @@ public class NeuronLayer {
 	public void propagate(double[] error) {
 		for(int i=0;i<neurons.length;i++) {
 			Neuron n=neurons[i];
-			n.setDelta((1-n.getOutput())*n.getOutput()*error[i]);
+			//n.setDelta((1-n.getOutput())*n.getOutput()*error[i]);		//sigmoid
+			n.setDelta((1-n.getOutput()*n.getOutput())*error[i]);		//tanSigmoid
 		}
 	}
 	
